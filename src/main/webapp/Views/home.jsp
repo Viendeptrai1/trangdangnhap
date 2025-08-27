@@ -1,21 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="org.example.trangdangnhap.model.User" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Trang chủ</title>
 </head>
 <body>
-<%
-    User current = (User) session.getAttribute("currentUser");
-    if (current == null) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
-%>
-<h2>Xin chào, <%= current.getUsername() %>!</h2>
-<p>Email: <%= current.getEmail() %></p>
-<p><a href="<%= request.getContextPath() %>/logout">Đăng xuất</a></p>
+<c:choose>
+    <c:when test="${empty sessionScope.currentUser}">
+        <c:redirect url="${pageContext.request.contextPath}/login"/>
+    </c:when>
+    <c:otherwise>
+        <h2>Xin chào, ${sessionScope.currentUser.username}!</h2>
+        <p>Email: ${sessionScope.currentUser.email}</p>
+        <p><a href="${pageContext.request.contextPath}/logout">Đăng xuất</a></p>
+    </c:otherwise>
+</c:choose>
 </body>
 </html>
 

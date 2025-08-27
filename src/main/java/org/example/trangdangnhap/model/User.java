@@ -5,15 +5,17 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private Integer roleId; // 1=admin,2=manager,3=user (ví dụ)
 
     public User() {
     }
 
-    public User(Long id, String username, String password, String email) {
+    public User(Long id, String username, String password, String email, Integer roleId) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.roleId = roleId;
     }
 
     public User(String username, String password, String email) {
@@ -52,6 +54,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 }
 

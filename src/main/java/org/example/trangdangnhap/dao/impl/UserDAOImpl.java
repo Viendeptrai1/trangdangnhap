@@ -12,7 +12,7 @@ import java.sql.Statement;
 
 public class UserDAOImpl implements UserDAO {
     private static final String SQL_INSERT = "INSERT INTO [User] (username, password, email) VALUES (?, ?, ?)";
-    private static final String SQL_SELECT_LOGIN = "SELECT TOP 1 id, username, password, email FROM [User] WHERE username = ? AND password = ?";
+    private static final String SQL_SELECT_LOGIN = "SELECT TOP 1 * FROM [User] WHERE username = ? AND password = ?";
     private static final String SQL_CHECK_EXISTS = "SELECT TOP 1 1 FROM [User] WHERE username = ?";
 
     @Override
@@ -53,6 +53,13 @@ public class UserDAOImpl implements UserDAO {
                     user.setUsername(rs.getString("username"));
                     user.setPassword(rs.getString("password"));
                     user.setEmail(rs.getString("email"));
+                    try {
+                        int role = rs.getInt("roleId");
+                        if (!rs.wasNull()) {
+                            user.setRoleId(role);
+                        }
+                    } catch (SQLException ignore) {
+                    }
                     return user;
                 }
             }
