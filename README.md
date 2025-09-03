@@ -100,14 +100,7 @@ mvn clean package
 - Kiểm tra session cho trang cần đăng nhập
 
 ## Database
-Ví dụ tạo bảng `Category` (SQL Server):
-```sql
-CREATE TABLE Category(
-  cate_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-  cate_name NVARCHAR(255) NOT NULL,
-  icons NVARCHAR(255) NULL
-);
-```
+
 Ví dụ tạo bảng `User` (tối thiểu):
 ```sql
 CREATE TABLE [User] (
@@ -117,7 +110,9 @@ CREATE TABLE [User] (
   email NVARCHAR(255) NOT NULL,
   roleId INT NULL
 );
-
+```
+```sql
+Ví dụ tạo bảng `Category` (SQL Server):
 CREATE TABLE Category(
 [cate_id] [int] IDENTITY(1,1) NOT NULL,
 [cate_name] [nvarchar](255) NOT NULL,
