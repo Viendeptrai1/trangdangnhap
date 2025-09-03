@@ -7,6 +7,7 @@
 - Quên mật khẩu
 - Đổi mật khẩu (khi đã đăng nhập)
 - Ghi nhớ đăng nhập bằng cookie
+- Quản trị danh mục (CRUD Category)
 
 ## Công nghệ sử dụng
 - Java Servlet (Jakarta EE)
@@ -18,90 +19,108 @@
 ```
 src/main/java/org/example/trangdangnhap/
 ├── dao/                    # Data Access Object
-│   ├── UserDAO.java       # Interface cho User DAO
+│   ├── UserDAO.java
+│   ├── CategoryDAO.java
 │   └── impl/
-│       └── UserDAOImpl.java # Implementation của User DAO
+│       ├── UserDAOImpl.java
+│       └── CategoryDAOImpl.java
 ├── model/
-│   └── User.java          # Model User
+│   ├── User.java
+│   └── Category.java
 ├── service/                # Business Logic Layer
-│   ├── UserService.java   # Interface cho User Service
+│   ├── UserService.java
+│   ├── CategoryService.java
 │   └── impl/
-│       └── UserServiceImpl.java # Implementation của User Service
+│       ├── UserServiceImpl.java
+│       └── CategoryServiceImpl.java
 ├── util/
-│   ├── DBConnection.java  # Kết nối database
-│   └── DBConnectionTest.java # Test kết nối
-└── UserController.java     # Servlet controller chính
+│   ├── DBConnection.java
+│   └── DBConnectionTest.java
+├── UserController.java     # Auth/Session, Home
+└── CategoryController.java # CRUD Category
 
 src/main/webapp/
 ├── Views/
-│   ├── login.jsp          # Trang đăng nhập
-│   ├── register.jsp       # Trang đăng ký
-│   ├── home.jsp           # Trang chủ (sau khi đăng nhập)
-│   ├── forgot-password.jsp # Trang quên mật khẩu
-│   └── change-password.jsp # Trang đổi mật khẩu
+│   ├── login.jsp
+│   ├── register.jsp
+│   ├── home.jsp
+│   ├── forgot-password.jsp
+│   ├── change-password.jsp
+│   └── admin/
+│       ├── list-category.jsp
+│       ├── add-category.jsp
+│       └── edit-category.jsp
 └── WEB-INF/
-    └── web.xml            # Cấu hình web application
+    └── web.xml
 ```
 
 ## Chức năng mới được thêm
 
-### 1. Quên mật khẩu
-- **URL**: `/forgot-password`
-- **Chức năng**: Cho phép người dùng đổi mật khẩu chỉ bằng cách nhập email
-- **Quy trình**:
-  1. Người dùng nhập email
-  2. Nhập mật khẩu mới
-  3. Xác nhận mật khẩu mới
-  4. Hệ thống kiểm tra email tồn tại và cập nhật mật khẩu
-  5. Chuyển hướng về trang đăng nhập
+### 1) Quên mật khẩu
+- URL: `/forgot-password`
+- Quy trình: Nhập email → nhập & xác nhận mật khẩu mới → cập nhật
 
-### 2. Đổi mật khẩu (khi đã đăng nhập)
-- **URL**: `/change-password`
-- **Chức năng**: Cho phép người dùng đã đăng nhập đổi mật khẩu
-- **Quy trình**:
-  1. Người dùng nhập mật khẩu hiện tại
-  2. Nhập mật khẩu mới
-  3. Xác nhận mật khẩu mới
-  4. Hệ thống kiểm tra mật khẩu hiện tại và cập nhật mật khẩu mới
+### 2) Đổi mật khẩu (đã đăng nhập)
+- URL: `/change-password`
+- Quy trình: Nhập mật khẩu hiện tại → mật khẩu mới → xác nhận → cập nhật
+
+### 3) CRUD Category
+- Controller: `CategoryController`
+- Model/DAO/Service: `Category.java`, `CategoryDAO/CategoryDAOImpl`, `CategoryService/CategoryServiceImpl`
+- Bảng DB: `Category(cate_id, cate_name, icons)`
+- Các URL:
+  - Danh sách: `GET /admin/category/list`
+  - Thêm mới: `GET /admin/category/add` → `POST /admin/category/add`
+  - Sửa: `GET /admin/category/edit?id={cate_id}` → `POST /admin/category/edit`
+  - Xóa: `GET /admin/category/delete?id={cate_id}`
+- JSP:
+  - `Views/admin/list-category.jsp`
+  - `Views/admin/add-category.jsp`
+  - `Views/admin/edit-category.jsp`
+- Điều hướng nhanh từ trang chủ: link "Quản trị danh mục" trong `Views/home.jsp`
+- Ghi chú: hiện tại trường `icons` nhập dạng text/url (chưa xử lý upload file)
 
 ## Cách sử dụng
 
-### 1. Khởi chạy ứng dụng
+### Build & chạy (ví dụ)
 ```bash
 mvn clean package
-mvn tomcat7:run
+# chạy theo cách bạn cấu hình server (Tomcat/Jetty/IDE)
 ```
 
-### 2. Truy cập ứng dụng
-- Mở trình duyệt và truy cập: `http://localhost:8080/trangdangnhap/`
-- Ứng dụng sẽ tự động chuyển hướng đến trang đăng nhập
-
-### 3. Sử dụng các chức năng
-- **Đăng ký**: Click "Đăng ký" từ trang đăng nhập
-- **Đăng nhập**: Nhập username và password
-- **Quên mật khẩu**: Click "Quên mật khẩu?" từ trang đăng nhập
-- **Đổi mật khẩu**: Click "Đổi mật khẩu" từ trang chủ (sau khi đăng nhập)
+### Truy cập ứng dụng
+- Trang đăng nhập: `http://localhost:8080/.../login`
+- Trang chủ (sau đăng nhập): `http://localhost:8080/.../home`
+- Quên mật khẩu: `http://localhost:8080/.../forgot-password`
+- Đổi mật khẩu: `http://localhost:8080/.../change-password`
+- CRUD Category (danh sách): `http://localhost:8080/.../admin/category/list`
 
 ## Bảo mật
-- Mật khẩu được mã hóa bằng SHA-256
-- Kiểm tra session để bảo vệ các trang yêu cầu đăng nhập
-- Validation dữ liệu đầu vào ở cả client và server
+- Mật khẩu băm SHA-256 trước khi lưu DB
+- Kiểm tra session cho trang cần đăng nhập
 
 ## Database
-Cần có bảng `User` với cấu trúc:
+Ví dụ tạo bảng `Category` (SQL Server):
+```sql
+CREATE TABLE Category(
+  cate_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  cate_name NVARCHAR(255) NOT NULL,
+  icons NVARCHAR(255) NULL
+);
+```
+Ví dụ tạo bảng `User` (tối thiểu):
 ```sql
 CREATE TABLE [User] (
-    id BIGINT IDENTITY(1,1) PRIMARY KEY,
-    username NVARCHAR(255) NOT NULL UNIQUE,
-    password NVARCHAR(255) NOT NULL,
-    email NVARCHAR(255) NOT NULL,
-    roleId INT
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  username NVARCHAR(255) NOT NULL UNIQUE,
+  password NVARCHAR(255) NOT NULL,
+  email NVARCHAR(255) NOT NULL,
+  roleId INT NULL
 );
 ```
 
 ## Lưu ý
-- Đảm bảo SQL Server đang chạy và có thể kết nối
-- Cập nhật thông tin kết nối database trong `DBConnection.java` nếu cần
-- Ứng dụng sử dụng Jakarta EE 6.0
+- Cập nhật cấu hình kết nối trong `util/DBConnection.java` cho đúng môi trường SQL Server
+- Dự án dùng Jakarta Servlet API (annotation `@WebServlet`), `web.xml` chỉ để welcome-file
 
 
