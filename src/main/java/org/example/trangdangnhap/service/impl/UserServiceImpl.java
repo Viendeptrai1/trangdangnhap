@@ -42,6 +42,42 @@ public class UserServiceImpl implements UserService {
         return userDAO.loginUser(username, hashed);
     }
 
+    @Override
+    public boolean forgotPassword(String email, String newPassword) {
+        if (isNullOrEmpty(email) || isNullOrEmpty(newPassword)) return false;
+        if (!isValidEmail(email)) return false;
+        if (!isStrongPassword(newPassword)) return false;
+        
+        User user = userDAO.getUserByEmail(email);
+        if (user == null) return false;
+        
+        String hashedPassword = hashPassword(newPassword);
+        return userDAO.updatePassword(user.getId(), hashedPassword);
+    }
+
+    @Override
+    public boolean changePassword(Long userId, String currentPassword, String newPassword) {
+        if (userId == null || isNullOrEmpty(currentPassword) || isNullOrEmpty(newPassword)) return false;
+        if (!isStrongPassword(newPassword)) return false;
+        
+        // Lấy thông tin user để kiểm tra mật khẩu hiện tại
+        User user = userDAO.getUserById(userId);
+        if (user == null) return false;
+        
+        // Kiểm tra mật khẩu hiện tại
+        String hashedCurrentPassword = hashPassword(currentPassword);
+        if (!hashedCurrentPassword.equals(user.getPassword())) return false;
+        
+        String hashedPassword = hashPassword(newPassword);
+        return userDAO.updatePassword(userId, hashedPassword);
+    }
+
+    @Override
+    public boolean isEmailExists(String email) {
+        if (isNullOrEmpty(email)) return false;
+        return userDAO.isEmailExists(email);
+    }
+
     private boolean isNullOrEmpty(String s) {
         return s == null || s.trim().isEmpty();
     }

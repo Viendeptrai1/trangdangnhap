@@ -12,7 +12,7 @@ import org.example.trangdangnhap.service.impl.UserServiceImpl;
 
 import java.io.IOException;
 
-@WebServlet(name = "userController", urlPatterns = {"/login", "/register", "/logout", "/home"})
+@WebServlet(name = "userController", urlPatterns = {"/login", "/register", "/logout", "/home", "/forgot-password", "/change-password"})
 public class UserController extends HttpServlet {
     private final UserService userService = new UserServiceImpl();
 
@@ -50,6 +50,16 @@ public class UserController extends HttpServlet {
                 }
                 req.getRequestDispatcher("/Views/home.jsp").forward(req, resp);
                 break;
+            case "/forgot-password":
+                req.getRequestDispatcher("/Views/forgot-password.jsp").forward(req, resp);
+                break;
+            case "/change-password":
+                if (req.getSession(false) == null || req.getSession(false).getAttribute("currentUser") == null) {
+                    resp.sendRedirect(req.getContextPath() + "/login");
+                    return;
+                }
+                req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+                break;
             default:
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -62,6 +72,10 @@ public class UserController extends HttpServlet {
             doLogin(req, resp);
         } else if ("/register".equals(path)) {
             doRegister(req, resp);
+        } else if ("/forgot-password".equals(path)) {
+            doForgotPassword(req, resp);
+        } else if ("/change-password".equals(path)) {
+            doChangePassword(req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         }
@@ -153,6 +167,73 @@ public class UserController extends HttpServlet {
         minimal.setUsername(username);
         minimal.setEmail("");
         return minimal;
+    }
+
+    private void doForgotPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        String email = req.getParameter("email");
+        String newPassword = req.getParameter("newPassword");
+        String confirmPassword = req.getParameter("confirmPassword");
+
+        if (email == null || email.trim().isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập email");
+            req.getRequestDispatcher("/Views/forgot-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập mật khẩu mới");
+            req.getRequestDispatcher("/Views/forgot-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            req.setAttribute("error", "Mật khẩu xác nhận không khớp");
+            req.getRequestDispatcher("/Views/forgot-password.jsp").forward(req, resp);
+            return;
+        }
+
+        boolean success = userService.forgotPassword(email, newPassword);
+        if (success) {
+            req.setAttribute("message", "Đổi mật khẩu thành công. Mời đăng nhập với mật khẩu mới.");
+            req.getRequestDispatcher("/Views/login.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("error", "Email không tồn tại hoặc có lỗi xảy ra");
+            req.getRequestDispatcher("/Views/forgot-password.jsp").forward(req, resp);
+        }
+    }
+
+    private void doChangePassword(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        String currentPassword = req.getParameter("currentPassword");
+        String newPassword = req.getParameter("newPassword");
+        String confirmPassword = req.getParameter("confirmPassword");
+
+        if (currentPassword == null || currentPassword.trim().isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập mật khẩu hiện tại");
+            req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập mật khẩu mới");
+            req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            req.setAttribute("error", "Mật khẩu xác nhận không khớp");
+            req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+            return;
+        }
+
+        User currentUser = (User) req.getSession().getAttribute("currentUser");
+        boolean success = userService.changePassword(currentUser.getId(), currentPassword, newPassword);
+        if (success) {
+            req.setAttribute("message", "Đổi mật khẩu thành công");
+            req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("error", "Mật khẩu hiện tại không đúng hoặc có lỗi xảy ra");
+            req.getRequestDispatcher("/Views/change-password.jsp").forward(req, resp);
+        }
     }
 }
 

@@ -8,6 +8,15 @@ public interface UserDAO {
     User loginUser(String username, String password);
 
     boolean isUsernameExists(String username);
+    
+    // Thêm các phương thức mới
+    User getUserByEmail(String email);
+    
+    User getUserById(Long id);
+    
+    boolean updatePassword(Long userId, String newPassword);
+    
+    boolean isEmailExists(String email);
 }
 
 
