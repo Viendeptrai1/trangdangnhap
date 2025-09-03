@@ -67,12 +67,12 @@ src/main/webapp/
 ### 3) CRUD Category
 - Controller: `CategoryController`
 - Model/DAO/Service: `Category.java`, `CategoryDAO/CategoryDAOImpl`, `CategoryService/CategoryServiceImpl`
-- Bảng DB: `Category(cate_id, cate_name, icons)`
+- Quan hệ: 1 User có nhiều Category (mỗi category gắn với `user_id`)
 - Các URL:
-  - Danh sách: `GET /admin/category/list`
-  - Thêm mới: `GET /admin/category/add` → `POST /admin/category/add`
-  - Sửa: `GET /admin/category/edit?id={cate_id}` → `POST /admin/category/edit`
-  - Xóa: `GET /admin/category/delete?id={cate_id}`
+  - Danh sách: `GET /admin/category/list` (lọc theo `currentUser`)
+  - Thêm mới: `GET /admin/category/add` → `POST /admin/category/add` (gắn `user_id = currentUser.id`)
+  - Sửa: `GET /admin/category/edit?id={cate_id}` → `POST /admin/category/edit` (kiểm tra quyền theo `user_id`)
+  - Xóa: `GET /admin/category/delete?id={cate_id}` (kiểm tra quyền theo `user_id`)
 - JSP:
   - `Views/admin/list-category.jsp`
   - `Views/admin/add-category.jsp`
@@ -112,19 +112,14 @@ CREATE TABLE [User] (
 );
 ```
 ```sql
-Ví dụ tạo bảng `Category` (SQL Server):
+-- Ví dụ tạo bảng `Category` (SQL Server) có quan hệ 1-n tới User
 CREATE TABLE Category(
-[cate_id] [int] IDENTITY(1,1) NOT NULL,
-[cate_name] [nvarchar](255) NOT NULL,
-[icons] [nvarchar](255) NULL,
-PRIMARY KEY CLUSTERED
-(
-[cate_id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF,
-IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,
-ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
+  [cate_id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  [cate_name] NVARCHAR(255) NOT NULL,
+  [icons] NVARCHAR(255) NULL,
+  [user_id] BIGINT NOT NULL,
+  CONSTRAINT FK_Category_User FOREIGN KEY ([user_id]) REFERENCES [User]([id])
+);
 ```
 
 ## Lưu ý

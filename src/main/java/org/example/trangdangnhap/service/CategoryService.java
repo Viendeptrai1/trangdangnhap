@@ -7,9 +7,9 @@ import java.util.List;
 public interface CategoryService {
     void insert(Category category);
     void edit(Category category);
-    void delete(int id);
-    Category get(int id);
-    Category get(String name);
-    List<Category> getAll();
-    List<Category> search(String keyword);
+    void delete(int id, Long userId);
+    Category get(int id, Long userId);
+    Category get(String name, Long userId);
+    List<Category> getAllByUserId(Long userId);
+    List<Category> search(Long userId, String keyword);
 }

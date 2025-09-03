@@ -18,33 +18,48 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void edit(Category category) {
-        if (category == null || category.getId() == null) return;
-        // Có thể thêm validate tên/ảnh nếu cần
+        if (category == null || category.getId() == null || category.getUserId() == null) return;
         categoryDAO.edit(category);
     }
 
     @Override
-    public void delete(int id) {
-        categoryDAO.delete(id);
+    public void delete(int id, Long userId) {
+        if (userId == null) return;
+        if (categoryDAO instanceof CategoryDAOImpl) {
+            ((CategoryDAOImpl) categoryDAO).delete(id, userId);
+        }
     }
 
     @Override
-    public Category get(int id) {
-        return categoryDAO.get(id);
+    public Category get(int id, Long userId) {
+        if (userId == null) return null;
+        if (categoryDAO instanceof CategoryDAOImpl) {
+            return ((CategoryDAOImpl) categoryDAO).get(id, userId);
+        }
+        return null;
     }
 
     @Override
-    public Category get(String name) {
-        return categoryDAO.get(name);
+    public Category get(String name, Long userId) {
+        if (userId == null) return null;
+        if (categoryDAO instanceof CategoryDAOImpl) {
+            return ((CategoryDAOImpl) categoryDAO).get(name, userId);
+        }
+        return null;
     }
 
     @Override
-    public List<Category> getAll() {
-        return categoryDAO.getAll();
+    public List<Category> getAllByUserId(Long userId) {
+        if (userId == null) return List.of();
+        return categoryDAO.getAllByUserId(userId);
     }
 
     @Override
-    public List<Category> search(String keyword) {
-        return categoryDAO.search(keyword == null ? "" : keyword);
+    public List<Category> search(Long userId, String keyword) {
+        if (userId == null) return List.of();
+        if (categoryDAO instanceof CategoryDAOImpl) {
+            return ((CategoryDAOImpl) categoryDAO).search(userId, keyword == null ? "" : keyword);
+        }
+        return List.of();
     }
 }

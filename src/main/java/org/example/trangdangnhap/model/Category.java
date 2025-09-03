@@ -4,6 +4,7 @@ public class Category {
     private Integer id; // cate_id
     private String name; // cate_name
     private String icon; // icons
+    private Long userId; // khóa ngoại đến User.id
 
     public Category() {
     }
@@ -12,6 +13,13 @@ public class Category {
         this.id = id;
         this.name = name;
         this.icon = icon;
+    }
+
+    public Category(Integer id, String name, String icon, Long userId) {
+        this.id = id;
+        this.name = name;
+        this.icon = icon;
+        this.userId = userId;
     }
 
     public Integer getId() {
@@ -36,5 +44,13 @@ public class Category {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

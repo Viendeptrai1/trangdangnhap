@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDAOImpl implements CategoryDAO {
-    private static final String SQL_INSERT = "INSERT INTO Category(cate_name, icons) VALUES (?, ?)";
-    private static final String SQL_UPDATE = "UPDATE Category SET cate_name = ?, icons = ? WHERE cate_id = ?";
-    private static final String SQL_DELETE = "DELETE FROM Category WHERE cate_id = ?";
-    private static final String SQL_GET_BY_ID = "SELECT * FROM Category WHERE cate_id = ?";
-    private static final String SQL_GET_BY_NAME = "SELECT * FROM Category WHERE cate_name = ?";
-    private static final String SQL_GET_ALL = "SELECT * FROM Category ORDER BY cate_id DESC";
-    private static final String SQL_SEARCH = "SELECT * FROM Category WHERE cate_name LIKE ? ORDER BY cate_id DESC";
+    private static final String SQL_INSERT = "INSERT INTO Category(cate_name, icons, user_id) VALUES (?, ?, ?)";
+    private static final String SQL_UPDATE = "UPDATE Category SET cate_name = ?, icons = ? WHERE cate_id = ? AND user_id = ?";
+    private static final String SQL_DELETE = "DELETE FROM Category WHERE cate_id = ? AND user_id = ?";
+    private static final String SQL_GET_BY_ID = "SELECT * FROM Category WHERE cate_id = ? AND user_id = ?";
+    private static final String SQL_GET_BY_NAME = "SELECT * FROM Category WHERE cate_name = ? AND user_id = ?";
+    private static final String SQL_GET_ALL = "SELECT * FROM Category WHERE user_id = ? ORDER BY cate_id DESC";
+    private static final String SQL_SEARCH = "SELECT * FROM Category WHERE user_id = ? AND cate_name LIKE ? ORDER BY cate_id DESC";
 
     @Override
     public void insert(Category category) {
@@ -26,6 +26,7 @@ public class CategoryDAOImpl implements CategoryDAO {
              PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
             ps.setString(1, category.getName());
             ps.setString(2, category.getIcon());
+            ps.setLong(3, category.getUserId());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -39,6 +40,7 @@ public class CategoryDAOImpl implements CategoryDAO {
             ps.setString(1, category.getName());
             ps.setString(2, category.getIcon());
             ps.setInt(3, category.getId());
+            ps.setLong(4, category.getUserId());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,9 +49,14 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public void delete(int id) {
+        throw new UnsupportedOperationException("Use delete with user scope");
+    }
+
+    public void delete(int id, Long userId) {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_DELETE)) {
             ps.setInt(1, id);
+            ps.setLong(2, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,9 +65,14 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public Category get(int id) {
+        throw new UnsupportedOperationException("Use get with user scope");
+    }
+
+    public Category get(int id, Long userId) {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_GET_BY_ID)) {
             ps.setInt(1, id);
+            ps.setLong(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
@@ -74,9 +86,14 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public Category get(String name) {
+        throw new UnsupportedOperationException("Use get(name) with user scope");
+    }
+
+    public Category get(String name, Long userId) {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_GET_BY_NAME)) {
             ps.setString(1, name);
+            ps.setLong(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
@@ -90,12 +107,24 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public List<Category> getAll() {
+        throw new UnsupportedOperationException("Use getAllByUserId");
+    }
+
+    @Override
+    public List<Category> search(String keyword) {
+        throw new UnsupportedOperationException("Use search with user scope");
+    }
+
+    @Override
+    public List<Category> getAllByUserId(Long userId) {
         List<Category> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(mapRow(rs));
+             PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,12 +132,12 @@ public class CategoryDAOImpl implements CategoryDAO {
         return list;
     }
 
-    @Override
-    public List<Category> search(String keyword) {
+    public List<Category> search(Long userId, String keyword) {
         List<Category> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_SEARCH)) {
-            ps.setString(1, "%" + keyword + "%");
+            ps.setLong(1, userId);
+            ps.setString(2, "%" + keyword + "%");
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapRow(rs));
@@ -125,6 +154,10 @@ public class CategoryDAOImpl implements CategoryDAO {
         category.setId(rs.getInt("cate_id"));
         category.setName(rs.getString("cate_name"));
         category.setIcon(rs.getString("icons"));
+        try {
+            long uid = rs.getLong("user_id");
+            if (!rs.wasNull()) category.setUserId(uid);
+        } catch (SQLException ignore) { }
         return category;
     }
 }

@@ -18,4 +18,7 @@ public interface CategoryDAO {
     List<Category> getAll();
 
     List<Category> search(String keyword);
+
+    // Thêm phương thức theo user
+    List<Category> getAllByUserId(Long userId);
 }
