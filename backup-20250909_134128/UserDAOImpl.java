@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class UserDAOImpl implements UserDAO {
-    private static final String SQL_INSERT = "INSERT INTO \"User\" (username, password, email) VALUES (?, ?, ?)";
-    private static final String SQL_SELECT_LOGIN = "SELECT * FROM \"User\" WHERE username = ? AND password = ? LIMIT 1";
-    private static final String SQL_CHECK_EXISTS = "SELECT 1 FROM \"User\" WHERE username = ? LIMIT 1";
-    private static final String SQL_SELECT_BY_EMAIL = "SELECT * FROM \"User\" WHERE email = ? LIMIT 1";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM \"User\" WHERE id = ? LIMIT 1";
-    private static final String SQL_UPDATE_PASSWORD = "UPDATE \"User\" SET password = ? WHERE id = ?";
-    private static final String SQL_CHECK_EMAIL_EXISTS = "SELECT 1 FROM \"User\" WHERE email = ? LIMIT 1";
+    private static final String SQL_INSERT = "INSERT INTO [User] (username, password, email) VALUES (?, ?, ?)";
+    private static final String SQL_SELECT_LOGIN = "SELECT TOP 1 * FROM [User] WHERE username = ? AND password = ?";
+    private static final String SQL_CHECK_EXISTS = "SELECT TOP 1 1 FROM [User] WHERE username = ?";
+    private static final String SQL_SELECT_BY_EMAIL = "SELECT TOP 1 * FROM [User] WHERE email = ?";
+    private static final String SQL_SELECT_BY_ID = "SELECT TOP 1 * FROM [User] WHERE id = ?";
+    private static final String SQL_UPDATE_PASSWORD = "UPDATE [User] SET password = ? WHERE id = ?";
+    private static final String SQL_CHECK_EMAIL_EXISTS = "SELECT TOP 1 1 FROM [User] WHERE email = ?";
 
     @Override
     public boolean registerUser(User user) {

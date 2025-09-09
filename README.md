@@ -12,8 +12,9 @@
 ## Công nghệ sử dụng
 - Java Servlet (Jakarta EE)
 - JSP (JavaServer Pages)
-- SQL Server
+- PostgreSQL
 - Maven
+- Docker
 
 ## Cấu trúc dự án
 ```
@@ -101,29 +102,37 @@ mvn clean package
 
 ## Database
 
-Ví dụ tạo bảng `User` (tối thiểu):
+Dự án sử dụng PostgreSQL với Docker. Database sẽ được tự động tạo khi khởi động container.
+
+Ví dụ tạo bảng `User` (PostgreSQL):
 ```sql
-CREATE TABLE [User] (
-  id BIGINT IDENTITY(1,1) PRIMARY KEY,
-  username NVARCHAR(255) NOT NULL UNIQUE,
-  password NVARCHAR(255) NOT NULL,
-  email NVARCHAR(255) NOT NULL,
-  roleId INT NULL
+CREATE TABLE "User" (
+  id BIGSERIAL PRIMARY KEY,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  roleId INTEGER NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+Ví dụ tạo bảng `Category` (PostgreSQL):
 ```sql
--- Ví dụ tạo bảng `Category` (SQL Server) có quan hệ 1-n tới User
-CREATE TABLE Category(
-  [cate_id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-  [cate_name] NVARCHAR(255) NOT NULL,
-  [icons] NVARCHAR(255) NULL,
-  [user_id] BIGINT NOT NULL,
-  CONSTRAINT FK_Category_User FOREIGN KEY ([user_id]) REFERENCES [User]([id])
+CREATE TABLE Category (
+  cate_id SERIAL PRIMARY KEY,
+  cate_name VARCHAR(255) NOT NULL,
+  icons VARCHAR(255) NULL,
+  user_id BIGINT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FK_Category_User FOREIGN KEY (user_id) REFERENCES "User"(id) ON DELETE CASCADE
 );
 ```
 
 ## Lưu ý
-- Cập nhật cấu hình kết nối trong `util/DBConnection.java` cho đúng môi trường SQL Server
+- Cấu hình kết nối PostgreSQL trong `util/DBConnection.java`
 - Dự án dùng Jakarta Servlet API (annotation `@WebServlet`), `web.xml` chỉ để welcome-file
+- Sử dụng Docker để chạy PostgreSQL: `./docker-scripts.sh start-db`
 
 

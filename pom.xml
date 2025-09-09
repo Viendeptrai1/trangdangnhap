@@ -34,10 +34,11 @@
             <version>6.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- PostgreSQL Driver -->
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>12.6.1.jre11</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
